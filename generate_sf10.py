@@ -247,9 +247,66 @@ class SF10Generator:
                 for char in [':', '\\', '/', '?', '*', '[', ']']:
                     sheet_name = sheet_name.replace(char, '')
 
-                # Copy the template sheet (this preserves images/drawings)
+                # Copy the template sheet
                 new_ws = output_wb.copy_worksheet(template_ws)
                 new_ws.title = sheet_name
+
+                # Add logos to the new sheet
+                try:
+                    from openpyxl.drawing.image import Image as XLImage
+                    from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker
+                    from openpyxl.drawing.xdr import XDRPositiveSize2D
+                    from openpyxl.utils.units import pixels_to_EMU
+
+                    # Path to logo files (PNG with transparent backgrounds)
+                    logo_dir = os.path.dirname(os.path.abspath(self.sf10_template_path))
+                    kagawaran_seal_path = os.path.join(logo_dir, 'c128a1b0-b3b3-492b-84f3-6624923eb8b4-removebg-preview.png')
+                    deped_logo_path = os.path.join(logo_dir, '95c51f57-dfdc-418a-bf4c-54acb45308be-removebg-preview.png')
+
+                    # Add Kagawaran ng Edukasyon seal (left)
+                    # Excel properties: Width=87pt, Height=90pt, Position X=43pt, Y=0pt
+                    if os.path.exists(kagawaran_seal_path):
+                        kagawaran_seal = XLImage(kagawaran_seal_path)
+                        # Size in pixels (1pt = 1.33 pixels)
+                        width_px = int(87 * 1.33)   # 116 pixels
+                        height_px = int(90 * 1.33)  # 120 pixels
+
+                        # Position in pixels
+                        x_px = int(43 * 1.33)  # 57 pixels from left
+                        y_px = 0  # 0 pixels from top
+
+                        # Create anchor with position and size
+                        marker = AnchorMarker(col=0, colOff=pixels_to_EMU(x_px),
+                                             row=0, rowOff=pixels_to_EMU(y_px))
+                        size = XDRPositiveSize2D(pixels_to_EMU(width_px), pixels_to_EMU(height_px))
+                        kagawaran_seal.anchor = OneCellAnchor(_from=marker, ext=size)
+                        new_ws.add_image(kagawaran_seal)
+
+                    # Add DepED logo (right)
+                    # Excel properties: Width=137pt, Height=137pt, Position X=821pt, Y=-24pt
+                    if os.path.exists(deped_logo_path):
+                        deped_logo = XLImage(deped_logo_path)
+                        # Size in pixels (square, constrain proportions)
+                        width_px = int(137 * 1.33)   # 182 pixels
+                        height_px = int(137 * 1.33)  # 182 pixels
+
+                        # Position in points (1 point = 914400 EMU)
+                        # Using exact point values for accurate positioning
+                        x_pt = 821
+                        y_pt = -24
+
+                        # Convert points directly to EMU (1 pt = 12700 EMU)
+                        x_emu = int(x_pt * 12700)
+                        y_emu = int(y_pt * 12700)
+
+                        # Create anchor with position and size
+                        marker = AnchorMarker(col=0, colOff=x_emu,
+                                             row=0, rowOff=y_emu)
+                        size = XDRPositiveSize2D(pixels_to_EMU(width_px), pixels_to_EMU(height_px))
+                        deped_logo.anchor = OneCellAnchor(_from=marker, ext=size)
+                        new_ws.add_image(deped_logo)
+                except Exception as e:
+                    pass  # Continue without logos if there's an issue
 
                 # Now fill in the student data
                 # Update the name fields
@@ -283,42 +340,7 @@ class SF10Generator:
 
         # Save the workbook
         output_wb.save(output_path)
-
-        # Manually copy media files and drawings from template to preserve logos
-        try:
-            from zipfile import ZipFile
-            import tempfile as tmp
-
-            # Create a temp file for the updated workbook
-            temp_output = tmp.NamedTemporaryFile(delete=False, suffix='.xlsx')
-            temp_output.close()
-
-            # Copy the saved workbook to temp
-            shutil.copy(output_path, temp_output.name)
-
-            # Extract media and drawing files from template
-            with ZipFile(self.sf10_template_path, 'r') as template_zip:
-                media_files = [f for f in template_zip.namelist() if 'media/' in f or 'drawing' in f.lower()]
-
-                # Add them to the output workbook
-                with ZipFile(temp_output.name, 'r') as output_zip_read:
-                    with ZipFile(output_path, 'w') as output_zip_write:
-                        # Copy all existing files from output
-                        for item in output_zip_read.namelist():
-                            data = output_zip_read.read(item)
-                            output_zip_write.writestr(item, data)
-
-                        # Add media and drawing files from template
-                        for media_file in media_files:
-                            data = template_zip.read(media_file)
-                            output_zip_write.writestr(media_file, data)
-
-            # Clean up temp file
-            os.unlink(temp_output.name)
-            print('   ✓ Logos and images copied successfully')
-
-        except Exception as e:
-            print(f'   ⚠ Warning: Could not copy images: {e}')
+        print('   ✓ SF10 generated with logos')
 
         print(f'\n✅ Successfully generated single workbook with {len(output_wb.sheetnames)} sheets')
         print(f'   Saved to: {output_path}')
