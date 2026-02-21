@@ -20,7 +20,7 @@ app.config['UPLOAD_FOLDER'] = tempfile.mkdtemp()
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
 
 # Template path
-TEMPLATE_PATH = 'SF10.xlsx'
+TEMPLATE_PATH = 'assets/docs/SF10.xlsx'
 
 
 def identify_quarter_from_filename(filename):

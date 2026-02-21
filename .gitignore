@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS
+.DS_Store
+
+# Output folders
+output/
+SF10_Generated/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Flask
+instance/
+.webassets-cache
+
+# Test coverage
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml

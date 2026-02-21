@@ -259,9 +259,9 @@ class SF10Generator:
                     from openpyxl.utils.units import pixels_to_EMU
 
                     # Path to logo files (PNG with transparent backgrounds)
-                    logo_dir = os.path.dirname(os.path.abspath(self.sf10_template_path))
-                    kagawaran_seal_path = os.path.join(logo_dir, 'c128a1b0-b3b3-492b-84f3-6624923eb8b4-removebg-preview.png')
-                    deped_logo_path = os.path.join(logo_dir, '95c51f57-dfdc-418a-bf4c-54acb45308be-removebg-preview.png')
+                    project_root = os.path.dirname(os.path.abspath(__file__))
+                    kagawaran_seal_path = os.path.join(project_root, 'assets', 'img', 'c128a1b0-b3b3-492b-84f3-6624923eb8b4-removebg-preview.png')
+                    deped_logo_path = os.path.join(project_root, 'assets', 'img', '95c51f57-dfdc-418a-bf4c-54acb45308be-removebg-preview.png')
 
                     # Add Kagawaran ng Edukasyon seal (left)
                     # Excel properties: Width=87pt, Height=90pt, Position X=43pt, Y=0pt
@@ -352,14 +352,14 @@ def main():
     """Main function to run the SF10 generation"""
 
     # Define file paths
-    grading_sheet = '1st QTR GRADE 1 DAISY GRADING SHEET.xlsx'
-    sf10_template = 'SF10.xlsx'
+    grading_sheet = 'assets/docs/1st QTR GRADE 1 DAISY GRADING SHEET.xlsx'
+    sf10_template = 'assets/docs/SF10.xlsx'
 
     # Create generator instance
     generator = SF10Generator(
         grading_sheet_path=grading_sheet,
         sf10_template_path=sf10_template,
-        output_dir='SF10_Generated'
+        output_dir='output'
     )
 
     # Generate single workbook with all students for 1st quarter

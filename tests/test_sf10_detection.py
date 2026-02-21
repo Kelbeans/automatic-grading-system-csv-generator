@@ -17,8 +17,8 @@ class TestSF10Detection(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures"""
         self.test_dir = tempfile.mkdtemp()
-        self.grading_sheet = '1st QTR GRADE 1 DAISY GRADING SHEET.xlsx'
-        self.sf10_template = 'SF10.xlsx'
+        self.grading_sheet = 'assets/docs/1st QTR GRADE 1 DAISY GRADING SHEET.xlsx'
+        self.sf10_template = 'assets/docs/SF10.xlsx'
 
     def tearDown(self):
         """Clean up test fixtures"""
