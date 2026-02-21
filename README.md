@@ -1,207 +1,294 @@
 # SF10 Grade Automation System
 
-An automated Python system for generating individual SF10 (Learner Permanent Academic Record) files from quarterly grading sheets.
+A modern web-based automation system for generating SF10 (Learner Permanent Academic Record) files from quarterly grading sheets for DepED schools.
+
+**Developed by Kelvin A. Malabanan** - Software Engineer
 
 ## Overview
 
-This system reads student grades from a quarterly grading sheet (SUMMARY OF QUARTERLY GRADES tab) and automatically generates individual SF10 files for each student with their grades populated in the appropriate quarter column.
+This system provides both a web interface and command-line tool to automatically generate SF10 files from quarterly grading sheets. It features drag-and-drop file upload, multi-quarter processing, and professional document generation with embedded DepED and Kagawaran ng Edukasyon logos.
 
 ## Features
 
-- **Single Workbook Output**: Generates ONE Excel file with all students as tabs (much easier to manage!)
-- **Automated SF10 Generation**: Creates SF10 records for all students automatically
-- **Complete Name Filling**: Fills Last Name, First Name, and Middle Name in separate fields
-- **Quarterly Grade Population**: Fills grades in the correct quarter column (1st, 2nd, 3rd, or 4th)
-- **Quarter Isolation**: Only fills the specified quarter, clears others
-- **Subject Mapping**: Maps subjects from grading sheet to SF10 format:
+### Web Interface
+- **Drag & Drop Upload**: User-friendly interface for non-technical users
+- **Multi-Quarter Support**: Process multiple quarters at once (1st, 2nd, 3rd, 4th)
+- **Smart File Detection**: Automatically identifies SF10 files by structure, not filename
+- **Backwards Compatible**: Can add quarters to existing SF10 files
+- **Professional UI**: Modern design with Poppins font and clean layout
+
+### Core Automation
+- **Single Workbook Output**: Generates one Excel file with all students as separate tabs
+- **Complete Name Mapping**: Fills Last Name, First Name, and Middle Name in correct fields
+- **Quarter Isolation**: Only fills specified quarters, preserves existing data
+- **Logo Embedding**: Automatically adds DepED and Kagawaran ng Edukasyon logos with transparent backgrounds
+- **Template Preservation**: Maintains all merged cells and formatting from original SF10 template
+- **Subject Mapping**: Correctly maps subjects from grading sheet to SF10:
   - Language
   - Reading and Literacy
   - Mathematics
   - GMRC (Good Manners and Right Conduct)
   - Makabansa
-- **Flexible Output**: Choose between single workbook or separate files
-- **Robust Error Handling**: Handles missing data gracefully
-- **Comprehensive Testing**: 18 unit tests with full coverage
 
 ## Requirements
 
-- Python 3.7+
-- pandas
-- openpyxl
+```
+Python 3.7+
+Flask==2.3.0
+Flask-CORS==4.0.0
+pandas==2.0.0
+openpyxl==3.1.0
+Pillow==10.0.0
+```
 
 ## Installation
 
-Install required dependencies:
+1. Clone or download the repository
+2. Install dependencies:
 
 ```bash
-pip install pandas openpyxl
+pip install -r requirements.txt
 ```
 
-## Usage
+## Quick Start
 
-### Basic Usage (Single Workbook - Recommended)
+### Web Interface (Recommended)
 
-Run the script from the command line:
+1. Start the web server:
+```bash
+python sf10_web_app.py
+```
+
+2. Open your browser to `http://localhost:8080`
+
+3. Upload your files:
+   - **Grading Sheets**: Drag and drop quarterly grading sheets (filename should include "1st", "2nd", "3rd", or "4th")
+   - **Existing SF10** (Optional): Upload an existing SF10 to add more quarters
+
+4. Click "Generate SF10 Records" and download your completed file
+
+### Command Line
 
 ```bash
 python generate_sf10.py
 ```
 
-This will:
-1. Read student data from `1st QTR GRADE 1 DAISY GRADING SHEET.xlsx`
-2. Use `SF10.xlsx` as the template
-3. Generate **ONE Excel file** with 40 tabs (one per student) in the `SF10_Generated/` directory
+This will process the sample files and generate `SF10_All_Students_Q1.xlsx` in the `output/` directory.
 
-**Output:** `SF10_All_Students_Q1.xlsx` with 40 student tabs
-
-### Alternative: Generate Separate Files
-
-If you prefer individual files instead of tabs, modify the `main()` function:
-
-```python
-# Create generator instance
-generator = SF10Generator(
-    grading_sheet_path=grading_sheet,
-    sf10_template_path=sf10_template,
-    output_dir='SF10_Generated'
-)
-
-# Generate separate files (old approach)
-generator.generate_all_sf10s(quarter=1)
-```
-
-### Customization
-
-For different quarters or custom output:
-
-```python
-# Single workbook approach
-generator.generate_single_workbook_all_students(
-    quarter=2,  # For 2nd quarter
-    output_filename='SF10_All_Students_Q2.xlsx'
-)
-
-# Or separate files approach
-generator.generate_all_sf10s(quarter=2)
-```
-
-## File Structure
+## Project Structure
 
 ```
-.
-├── generate_sf10.py              # Main automation script
-├── test_generate_sf10.py         # Unit tests
-├── 1st QTR GRADE 1 DAISY GRADING SHEET.xlsx  # Input grading sheet
-├── SF10.xlsx                     # SF10 template
-├── SF10_Generated/               # Output directory with generated files
-│   ├── SF10_AGOT_KHIAN_CLOUD.xlsx
-│   ├── SF10_ANDEO_JHON_PAUL.xlsx
-│   └── ...
-└── README.md                     # This file
+SF10-Grade-Automation/
+├── assets/
+│   ├── docs/               # Sample files and templates
+│   │   ├── SF10.xlsx       # SF10 template
+│   │   ├── 1st QTR GRADE 1 DAISY GRADING SHEET.xlsx
+│   │   └── USER_GUIDE.md
+│   └── img/                # Logo images
+│       ├── 95c51f57-dfdc-418a-bf4c-54acb45308be-removebg-preview.png  # DepED logo
+│       └── c128a1b0-b3b3-492b-84f3-6624923eb8b4-removebg-preview.png  # Kagawaran seal
+├── static/
+│   ├── css/
+│   │   └── style.css       # Professional UI styling
+│   └── js/
+│       └── app.js          # Client-side logic
+├── templates/
+│   └── index.html          # Web interface
+├── tests/
+│   ├── test_generate_sf10.py
+│   ├── test_sf10_detection.py
+│   └── test_server.py
+├── generate_sf10.py        # Core automation engine
+├── sf10_web_app.py         # Flask web application
+├── requirements.txt
+└── README.md
 ```
 
 ## How It Works
 
-### 1. Data Extraction
+### 1. File Upload & Quarter Detection
+- Grading sheets are automatically identified by quarter from filename
+- Existing SF10 files are detected by structure (20+ sheets, merged cells, subject indicators)
 
-The system reads the `SUMMARY OF QUARTERLY GRADES` sheet from the grading file:
-- Student names from column B (index 1)
-- Grades from columns F-J (indices 5-9):
+### 2. Data Processing
+The system reads the `SUMMARY OF QUARTERLY GRADES` sheet:
+- **Student names** from column B (parsed into Last, First, Middle)
+- **Grades** from columns F-J:
   - Column F: Language
   - Column G: Reading and Literacy
   - Column H: Mathematics
   - Column I: GMRC
   - Column J: Makabansa
 
-### 2. SF10 Generation
+### 3. SF10 Generation
+For each student, the system:
+1. Creates a new sheet by copying the SF10 template
+2. Fills name fields in row 9:
+   - Column E (5): Last Name
+   - Column Q (17): First Name
+   - Column AP (42): Middle Name
+3. Populates grades in the correct quarter column:
+   - **1st Quarter**: Column K (10)
+   - **2nd Quarter**: Column L (11)
+   - **3rd Quarter**: Column M (12)
+   - **4th Quarter**: Column N (13)
+4. Embeds DepED and Kagawaran ng Edukasyon logos with exact positioning:
+   - **Kagawaran Seal**: 87pt × 90pt at X=43pt, Y=0pt
+   - **DepED Logo**: 137pt × 137pt at X=821pt, Y=-24pt
+5. Preserves all 497 merged cells from the template
 
-For each student:
-1. Loads the SF10 template
-2. Fills the last name in row 9, column E
-3. Populates grades in the quarterly rating columns:
-   - 1st Quarter: Column K (index 10)
-   - 2nd Quarter: Column L (index 11)
-   - 3rd Quarter: Column M (index 12)
-   - 4th Quarter: Column N (index 13)
+### 4. Multi-Quarter Processing
+When adding to an existing SF10:
+- Merges new quarter data with existing records
+- Updates only the new quarter columns
+- Preserves all existing student data
+- Maintains formatting and logos
 
-### 3. File Naming
+## API Reference
 
-Output files are named using the format:
+### SF10Generator Class
+
+Main class for SF10 generation.
+
+#### Constructor
+```python
+SF10Generator(grading_sheet_path, sf10_template_path, output_dir='output')
 ```
-SF10_<LASTNAME>_<FIRSTNAME>.xlsx
-```
 
-Example: `SF10_AGOT_KHIAN_CLOUD.xlsx`
+#### Key Methods
+- `read_student_grades()` - Read student data from grading sheet
+- `generate_sf10_for_student(student, quarter)` - Generate SF10 for one student
+- `generate_single_workbook_all_students(quarter, output_filename)` - Generate single workbook with all students
+
+### Web Application
+
+#### Endpoints
+- `GET /` - Web interface
+- `POST /upload` - Process grading sheets and generate SF10
+- `GET /download/<filename>` - Download generated file
+
+#### Response Format
+```json
+{
+  "success": true,
+  "message": "SF10 generated successfully",
+  "quarters": [1, 2],
+  "download_url": "/download/SF10_All_Students.xlsx"
+}
+```
 
 ## Testing
 
-Run the unit tests to verify the system:
-
+Run all unit tests:
 ```bash
-python -m unittest test_generate_sf10 -v
+python -m unittest discover tests/ -v
 ```
 
-All tests should pass with OK status.
-
-## Output
-
-The script generates:
-- Individual SF10 file for each student
-- Console output showing progress:
-
-```
-Reading student data from: 1st QTR GRADE 1 DAISY GRADING SHEET.xlsx
-
-Found 40 students
-Generating SF10 files for Quarter 1...
-
-1. Generated: SF10_AGOT_KHIAN_CLOUD.xlsx - AGOT,KHIAN CLOUD, DABLO
-2. Generated: SF10_ANDEO_JHON_PAUL.xlsx - ANDEO,JHON PAUL, ANITADO
-...
-40. Generated: SF10_TURALDE_SHERLYN_JHANE.xlsx - TURALDE,SHERLYN JHANE, SALAS
-
-✅ Successfully generated 40 SF10 files in "SF10_Generated" directory
+Run specific test suite:
+```bash
+python -m unittest tests.test_generate_sf10 -v
+python -m unittest tests.test_sf10_detection -v
 ```
 
-## Class Reference
+**Test Coverage**: 25 unit tests covering:
+- Name field mapping
+- Quarter isolation
+- Merged cell preservation
+- Multi-quarter processing
+- SF10 file detection
+- Logo embedding
 
-### SF10Generator
+## Customization
 
-Main class for generating SF10 files.
+### Change Output Directory
+```python
+generator = SF10Generator(
+    grading_sheet_path='your_file.xlsx',
+    sf10_template_path='assets/docs/SF10.xlsx',
+    output_dir='custom_output'
+)
+```
 
-#### Methods
-
-- `__init__(grading_sheet_path, sf10_template_path, output_dir='output')`: Initialize the generator
-- `read_student_grades()`: Read student data from grading sheet
-- `generate_sf10_for_student(student, quarter=1)`: Generate SF10 for a single student
-- `generate_all_sf10s(quarter=1)`: Generate SF10 files for all students
-
-#### Attributes
-
-- `subject_mapping`: Dictionary mapping grading sheet subjects to SF10 subjects
-- `sf10_subject_rows`: Dictionary mapping SF10 subjects to row positions
-- `sf10_quarter_columns`: Dictionary mapping quarter numbers to column positions
+### Process Different Quarters
+```python
+generator.generate_single_workbook_all_students(
+    quarter=3,  # 3rd quarter
+    output_filename='SF10_Q3.xlsx'
+)
+```
 
 ## Troubleshooting
 
-### Common Issues
+### Port 5000 Already in Use (macOS)
+The app uses port 8080 to avoid conflicts with AirPlay on macOS.
 
-1. **Missing openpyxl module**: Install with `pip install openpyxl`
-2. **File not found**: Ensure grading sheet and SF10 template are in the same directory as the script
-3. **Permission denied**: Check that you have write permissions in the output directory
+### Logo Images Not Showing
+Ensure PNG logo files are in `assets/img/` directory with transparent backgrounds.
 
-## Future Enhancements
+### Test Files Not Found
+Tests reference files in `assets/docs/`. Ensure paths are correct.
 
-- Support for multiple quarters in a single run
-- GUI interface for easier use
-- Automatic final rating calculation
-- Batch processing for multiple grading sheets
-- Excel validation and error reporting
+### Permission Errors
+Run with appropriate permissions or check output directory write access.
+
+## Technical Details
+
+### Logo Positioning
+- Uses OpenPyXL OneCellAnchor with XDRPositiveSize2D
+- Exact EMU (English Metric Units) conversion: 1pt = 12700 EMU
+- Transparent PNG images for clean overlay
+
+### File Detection Algorithm
+SF10 files are identified by:
+- 20+ sheets (one per student)
+- Name field at row 9, column 5
+- Subject indicators in rows 30-32
+- 100+ merged cells
+
+## Deployment
+
+### Production Considerations
+- Use `gunicorn` or `waitress` for production WSGI server
+- Set appropriate `MAX_CONTENT_LENGTH` for file uploads
+- Configure CORS settings for your domain
+- Use environment variables for configuration
+
+### Docker Support
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "sf10_web_app.py"]
+```
 
 ## License
 
-This project is created for educational purposes.
+Created for educational purposes for DepED schools.
 
 ## Author
 
-Created for Amparo Elementary School grading automation.
+**Kelvin A. Malabanan** - Software Engineer
+GitHub: [Kelbeans](https://github.com/Kelbeans)
+
+## Acknowledgments
+
+- Built for Amparo Elementary School
+- Uses DepED official SF10 format
+- Kagawaran ng Edukasyon and DepED logos remain property of the Department of Education
+
+## Changelog
+
+### v2.0 (Current)
+- Web interface with drag-and-drop
+- Multi-quarter support
+- Smart SF10 file detection
+- Logo embedding with exact positioning
+- Professional UI with Poppins font
+- Proper MVC project structure
+
+### v1.0
+- Initial command-line version
+- Single quarter processing
+- Basic SF10 generation
