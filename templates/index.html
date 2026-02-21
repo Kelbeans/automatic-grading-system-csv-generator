@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF10 Grade Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .drop-zone {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .drop-zone.dragover {
+            border-color: #764ba2;
+            background: #e8eaff;
+            transform: scale(1.02);
+        }
+
+        .drop-zone-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .drop-zone-text {
+            font-size: 18px;
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone-hint {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .file-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-item-icon {
+            font-size: 24px;
+        }
+
+        .file-item-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .file-item-quarter {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .file-item-remove {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .file-item-remove:hover {
+            background: #cc0000;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-box {
+            background: #e8f4fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            color: #1976D2;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-box-list {
+            list-style: none;
+            color: #555;
+        }
+
+        .info-box-list li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .info-box-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 15px;
+            background: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .download-link:hover {
+            background: #218838;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 SF10 Grade Automation</h1>
+            <p>Drag & drop your grading sheets to generate SF10 records</p>
+        </div>
+
+        <div class="content">
+            <!-- Info Box -->
+            <div class="info-box">
+                <div class="info-box-title">📝 How it works:</div>
+                <ul class="info-box-list">
+                    <li>Upload grading sheets for any quarter (1st, 2nd, 3rd, or 4th)</li>
+                    <li>You can upload multiple quarters at once</li>
+                    <li>Optional: Upload existing SF10 to update with new quarters (any filename works!)</li>
+                    <li>Grading sheet names should contain the quarter (e.g., "1st QTR", "2nd QTR")</li>
+                    <li>SF10 files are auto-detected by content, not filename</li>
+                    <li>Download your completed SF10 file with all students as tabs</li>
+                </ul>
+            </div>
+
+            <!-- Grading Sheets Drop Zone -->
+            <div class="section">
+                <div class="section-title">1. Upload Grading Sheets</div>
+                <div class="drop-zone" id="gradingDropZone">
+                    <div class="drop-zone-icon">📄</div>
+                    <div class="drop-zone-text">Drag & drop grading sheets here</div>
+                    <div class="drop-zone-hint">or click to browse</div>
+                </div>
+                <input type="file" id="gradingFileInput" multiple accept=".xlsx,.xls">
+                <div class="file-list" id="gradingFileList"></div>
+            </div>
+
+            <!-- Existing SF10 Drop Zone (Optional) -->
+            <div class="section">
+                <div class="section-title">2. Upload Existing SF10 (Optional)</div>
+                <div class="drop-zone" id="sf10DropZone">
+                    <div class="drop-zone-icon">📊</div>
+                    <div class="drop-zone-text">Drag & drop existing SF10 here</div>
+                    <div class="drop-zone-hint">Any SF10 file with student sheets - filename doesn't matter</div>
+                </div>
+                <input type="file" id="sf10FileInput" accept=".xlsx,.xls">
+                <div class="file-list" id="sf10FileList"></div>
+            </div>
+
+            <!-- Generate Button -->
+            <button class="button" id="generateBtn" disabled>
+                Generate SF10
+            </button>
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Processing your files...</div>
+            </div>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage"></div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        const gradingFiles = [];
+        let existingSF10 = null;
+
+        // Grading sheets drop zone
+        const gradingDropZone = document.getElementById('gradingDropZone');
+        const gradingFileInput = document.getElementById('gradingFileInput');
+        const gradingFileList = document.getElementById('gradingFileList');
+
+        // Existing SF10 drop zone
+        const sf10DropZone = document.getElementById('sf10DropZone');
+        const sf10FileInput = document.getElementById('sf10FileInput');
+        const sf10FileList = document.getElementById('sf10FileList');
+
+        // Button
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Grading sheets handlers
+        gradingDropZone.addEventListener('click', () => gradingFileInput.click());
+        gradingDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            gradingDropZone.classList.add('dragover');
+        });
+        gradingDropZone.addEventListener('dragleave', () => {
+            gradingDropZone.classList.remove('dragover');
+        });
+        gradingDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            gradingDropZone.classList.remove('dragover');
+            handleGradingFiles(e.dataTransfer.files);
+        });
+        gradingFileInput.addEventListener('change', (e) => {
+            handleGradingFiles(e.target.files);
+        });
+
+        // SF10 handlers
+        sf10DropZone.addEventListener('click', () => sf10FileInput.click());
+        sf10DropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            sf10DropZone.classList.add('dragover');
+        });
+        sf10DropZone.addEventListener('dragleave', () => {
+            sf10DropZone.classList.remove('dragover');
+        });
+        sf10DropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            sf10DropZone.classList.remove('dragover');
+            handleSF10File(e.dataTransfer.files[0]);
+        });
+        sf10FileInput.addEventListener('change', (e) => {
+            handleSF10File(e.target.files[0]);
+        });
+
+        function identifyQuarter(filename) {
+            const lower = filename.toLowerCase();
+            if (lower.includes('1st') || lower.includes('first')) return 1;
+            if (lower.includes('2nd') || lower.includes('second')) return 2;
+            if (lower.includes('3rd') || lower.includes('third')) return 3;
+            if (lower.includes('4th') || lower.includes('fourth')) return 4;
+            return null;
+        }
+
+        function handleGradingFiles(files) {
+            Array.from(files).forEach(file => {
+                const quarter = identifyQuarter(file.name);
+                if (quarter) {
+                    gradingFiles.push({ file, quarter });
+                } else {
+                    alert(`Could not identify quarter from filename: ${file.name}\nPlease include "1st", "2nd", "3rd", or "4th" in the filename.`);
+                }
+            });
+            updateGradingFileList();
+            updateGenerateButton();
+        }
+
+        function handleSF10File(file) {
+            if (file) {
+                existingSF10 = file;
+                updateSF10FileList();
+            }
+        }
+
+        function updateGradingFileList() {
+            gradingFileList.innerHTML = gradingFiles.map((item, index) => `
+                <div class="file-item">
+                    <div class="file-item-info">
+                        <div class="file-item-icon">📄</div>
+                        <div>
+                            <div class="file-item-name">${item.file.name}</div>
+                        </div>
+                        <span class="file-item-quarter">Q${item.quarter}</span>
+                    </div>
+                    <button class="file-item-remove" onclick="removeGradingFile(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function updateSF10FileList() {
+            if (existingSF10) {
+                sf10FileList.innerHTML = `
+                    <div class="file-item">
+                        <div class="file-item-info">
+                            <div class="file-item-icon">📊</div>
+                            <div class="file-item-name">${existingSF10.name}</div>
+                        </div>
+                        <button class="file-item-remove" onclick="removeSF10File()">Remove</button>
+                    </div>
+                `;
+            } else {
+                sf10FileList.innerHTML = '';
+            }
+        }
+
+        function removeGradingFile(index) {
+            gradingFiles.splice(index, 1);
+            updateGradingFileList();
+            updateGenerateButton();
+        }
+
+        function removeSF10File() {
+            existingSF10 = null;
+            updateSF10FileList();
+        }
+
+        function updateGenerateButton() {
+            generateBtn.disabled = gradingFiles.length === 0;
+        }
+
+        generateBtn.addEventListener('click', async () => {
+            const formData = new FormData();
+
+            // Add grading files
+            gradingFiles.forEach((item, index) => {
+                formData.append(`grading_${index}`, item.file);
+            });
+
+            // Add existing SF10 if provided
+            if (existingSF10) {
+                formData.append('existing_sf10', existingSF10);
+            }
+
+            // Hide messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            // Show loading
+            loading.style.display = 'block';
+            generateBtn.disabled = true;
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                loading.style.display = 'none';
+
+                if (response.ok) {
+                    successMessage.innerHTML = `
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">✅ ${result.message}</div>
+                        <div>Quarters processed: ${result.quarters.join(', ')}</div>
+                        <a href="${result.download_url}" class="download-link">📥 Download SF10 File</a>
+                    `;
+                    successMessage.style.display = 'block';
+
+                    // Clear files
+                    gradingFiles.length = 0;
+                    existingSF10 = null;
+                    updateGradingFileList();
+                    updateSF10FileList();
+                    updateGenerateButton();
+                } else {
+                    errorMessage.textContent = `❌ Error: ${result.error}`;
+                    errorMessage.style.display = 'block';
+                    generateBtn.disabled = false;
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                errorMessage.textContent = `❌ Error: ${error.message}`;
+                errorMessage.style.display = 'block';
+                generateBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

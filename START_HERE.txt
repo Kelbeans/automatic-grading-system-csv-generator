@@ -1,0 +1,105 @@
+═══════════════════════════════════════════════════════════════
+          🚀 QUICK START GUIDE - READ THIS FIRST!
+═══════════════════════════════════════════════════════════════
+
+⚠️  IMPORTANT: Don't open the HTML file directly!
+    You need to start the Flask server first.
+
+⚠️  MAC USERS: Port 8080 is used (port 5000 conflicts with AirPlay)
+
+═══════════════════════════════════════════════════════════════
+
+EASY METHOD (Recommended):
+═══════════════════════════════════════════════════════════════
+
+1. Find file: "START_WEB_APP.command"
+2. Double-click it
+3. Terminal window opens and starts the server
+4. Browser opens automatically to http://localhost:8080
+5. Start using the interface!
+
+═══════════════════════════════════════════════════════════════
+
+MANUAL METHOD (If double-click doesn't work):
+═══════════════════════════════════════════════════════════════
+
+1. Open Terminal (Cmd + Space, type "Terminal")
+
+2. Copy and paste this:
+   cd /Users/dev.kelvin/Documents/automatic\ grading\ system
+
+3. Press Enter
+
+4. Copy and paste this:
+   python3 sf10_web_app.py
+
+5. Press Enter
+
+6. You'll see: "Open your browser to: http://localhost:8080"
+
+7. Open web browser and go to: http://localhost:8080
+
+═══════════════════════════════════════════════════════════════
+
+WHAT YOU SHOULD SEE:
+═══════════════════════════════════════════════════════════════
+
+✓ Terminal shows "Running on http://127.0.0.1:8080"
+✓ Browser address bar shows "http://localhost:8080" (NOT "file://")
+✓ Purple gradient interface appears
+✓ Two drag-and-drop boxes are visible
+
+═══════════════════════════════════════════════════════════════
+
+TROUBLESHOOTING:
+═══════════════════════════════════════════════════════════════
+
+Problem: "Connection refused" or "Can't reach page"
+Solution: Make sure the Terminal is still running the server
+
+Problem: "file://" appears in browser address
+Solution: You opened the HTML file directly - DON'T DO THIS!
+         Start the server first, then go to http://localhost:8080
+
+Problem: "HTTP 403 Error"
+Solution: Port conflict! Port 8080 should work on Mac
+         (Port 5000 is used by AirPlay on macOS)
+
+Problem: Server won't start
+Solution: Make sure port 8080 isn't being used by another app
+         Check with: lsof -i :8080
+
+═══════════════════════════════════════════════════════════════
+
+TO STOP THE SERVER:
+═══════════════════════════════════════════════════════════════
+
+Go to the Terminal window and press: Ctrl + C
+
+═══════════════════════════════════════════════════════════════
+
+FOR YOUR WIFE (Non-technical):
+═══════════════════════════════════════════════════════════════
+
+Tell her:
+
+"Double-click the file called START_WEB_APP.command
+Wait for the purple website to open
+Drag your Excel files to the boxes
+Click Generate
+Download your file!"
+
+═══════════════════════════════════════════════════════════════
+
+NEED HELP?
+═══════════════════════════════════════════════════════════════
+
+Read: USER_GUIDE.md (detailed instructions)
+
+Common mistakes:
+- Opening HTML file directly (won't work!)
+- Not starting the server first
+- Going to wrong address in browser
+- Using port 5000 instead of 8080 on Mac
+
+═══════════════════════════════════════════════════════════════
