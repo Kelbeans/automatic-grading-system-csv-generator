@@ -98,6 +98,9 @@ This will process your grading sheet and generate `SF10_All_Students_Q1.xlsx` in
 
 ```
 SF10-Grade-Automation/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml      # CI/CD GitHub Actions
 ├── assets/
 │   ├── docs/               # Documentation and templates
 │   │   ├── SF10.xlsx       # SF10 template (required)
@@ -112,6 +115,12 @@ SF10-Grade-Automation/
 │       └── app.js          # Client-side logic
 ├── templates/
 │   └── index.html          # Web interface
+├── terraform/
+│   ├── main.tf             # AWS infrastructure
+│   ├── variables.tf        # Configuration variables
+│   ├── outputs.tf          # Deployment outputs
+│   ├── user_data.sh        # Bootstrap script
+│   └── README.md           # Deployment guide
 ├── tests/
 │   ├── test_generate_sf10.py
 │   ├── test_sf10_detection.py
@@ -265,20 +274,33 @@ SF10 files are identified by:
 
 ## Deployment
 
-### Production Considerations
-- Use `gunicorn` or `waitress` for production WSGI server
-- Set appropriate `MAX_CONTENT_LENGTH` for file uploads
-- Configure CORS settings for your domain
-- Use environment variables for configuration
+### AWS Deployment with Terraform + CI/CD (Recommended)
 
-### Docker Support
-```dockerfile
-FROM python:3.9-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["python", "sf10_web_app.py"]
+**One-command deployment** to AWS with automatic updates on git push!
+
+```bash
+cd terraform
+terraform init
+terraform apply
+```
+
+Features:
+- ✅ **Auto-provisions** EC2, Security Groups, Elastic IP
+- ✅ **CI/CD enabled** - deploys automatically on git push
+- ✅ **Free tier eligible** - t2.micro instance (12 months free)
+- ✅ **Production-ready** - Nginx + Gunicorn + systemd
+- ✅ **Always on** - no spin-down delays
+- ✅ **1GB RAM** - handles 40+ students easily
+
+**Cost**: Free for 12 months, then ~$10/month
+
+📖 **Complete guide**: See [terraform/README.md](terraform/README.md)
+
+### Local Development
+
+```bash
+python sf10_web_app.py
+# Open http://localhost:8080
 ```
 
 ## License
