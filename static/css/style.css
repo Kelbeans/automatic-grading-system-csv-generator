@@ -318,12 +318,36 @@ input[type="file"] {
     margin-top: 40px;
 }
 
-.footer a {
-    color: #0ea5e9;
-    text-decoration: none;
-    font-weight: 500;
+.footer-text {
+    margin-bottom: 12px;
 }
 
-.footer a:hover {
-    text-decoration: underline;
+.developer-name {
+    color: #0ea5e9;
+    font-weight: 600;
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.social-link {
+    color: #94a3b8;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-link:hover {
+    color: #0ea5e9;
+    transform: translateY(-2px);
+}
+
+.social-link svg {
+    width: 24px;
+    height: 24px;
 }
