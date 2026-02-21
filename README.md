@@ -82,7 +82,7 @@ SF10-Grade-Automation/
 ├── assets/
 │   ├── docs/               # Sample files and templates
 │   │   ├── SF10.xlsx       # SF10 template
-│   │   ├── 1st QTR GRADE 1 DAISY GRADING SHEET.xlsx
+│   │   ├── Sample_Grading_Sheet.xlsx
 │   │   └── USER_GUIDE.md
 │   └── img/                # Logo images
 │       ├── 95c51f57-dfdc-418a-bf4c-54acb45308be-removebg-preview.png  # DepED logo
@@ -274,7 +274,6 @@ GitHub: [Kelbeans](https://github.com/Kelbeans)
 
 ## Acknowledgments
 
-- Built for Amparo Elementary School
 - Uses DepED official SF10 format
 - Kagawaran ng Edukasyon and DepED logos remain property of the Department of Education
 
