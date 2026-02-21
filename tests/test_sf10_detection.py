@@ -6,7 +6,7 @@ import unittest
 import os
 import tempfile
 import shutil
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 from sf10_web_app import is_sf10_file
 from generate_sf10 import SF10Generator
 
@@ -17,8 +17,43 @@ class TestSF10Detection(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures"""
         self.test_dir = tempfile.mkdtemp()
-        self.grading_sheet = 'assets/docs/1st QTR GRADE 1 DAISY GRADING SHEET.xlsx'
         self.sf10_template = 'assets/docs/SF10.xlsx'
+
+        # Skip tests if template not found
+        if not os.path.exists(self.sf10_template):
+            self.skipTest("SF10 template not found")
+
+        # Create a mock grading sheet for testing
+        self.grading_sheet = os.path.join(self.test_dir, 'test_grading.xlsx')
+        self._create_mock_grading_sheet()
+
+    def _create_mock_grading_sheet(self):
+        """Create a minimal mock grading sheet for testing"""
+        wb = Workbook()
+        # Remove default sheet
+        if 'Sheet' in wb.sheetnames:
+            wb.remove(wb['Sheet'])
+
+        # Create SUMMARY sheet with proper name
+        ws = wb.create_sheet('SUMMARY OF QUARTERLY GRADES ')
+
+        # Add mock student data (simplified structure)
+        # Row 10 is where student data starts
+        students = [
+            ('DOE,JOHN, A', 85, 88, 90, 87, 89),
+            ('SMITH,JANE, B', 92, 90, 91, 93, 88),
+            ('BROWN,BOB, C', 78, 82, 85, 80, 83),
+        ]
+
+        for idx, (name, lang, reading, math, gmrc, makabansa) in enumerate(students, start=10):
+            ws.cell(row=idx, column=2, value=name)  # Column B (index 1)
+            ws.cell(row=idx, column=6, value=lang)  # Column F (index 5)
+            ws.cell(row=idx, column=7, value=reading)  # Column G (index 6)
+            ws.cell(row=idx, column=8, value=math)  # Column H (index 7)
+            ws.cell(row=idx, column=9, value=gmrc)  # Column I (index 8)
+            ws.cell(row=idx, column=10, value=makabansa)  # Column J (index 9)
+
+        wb.save(self.grading_sheet)
 
     def tearDown(self):
         """Clean up test fixtures"""

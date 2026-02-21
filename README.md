@@ -32,6 +32,7 @@ This system provides both a web interface and command-line tool to automatically
 
 ## Requirements
 
+### System Requirements
 ```
 Python 3.7+
 Flask==2.3.0
@@ -40,6 +41,19 @@ pandas==2.0.0
 openpyxl==3.1.0
 Pillow==10.0.0
 ```
+
+### Grading Sheet Format
+
+Your grading sheet must have a sheet named **"SUMMARY OF QUARTERLY GRADES "** (with trailing space) with:
+- **Column B** (index 1): Student names in format "LASTNAME,FIRSTNAME, MIDDLE"
+- **Column F** (index 5): Language grades
+- **Column G** (index 6): Reading and Literacy grades
+- **Column H** (index 7): Mathematics grades
+- **Column I** (index 8): GMRC grades
+- **Column J** (index 9): Makabansa grades
+- Student data starts at **row 10**
+
+Filename should include quarter identifier: "1st", "2nd", "3rd", or "4th"
 
 ## Installation
 
@@ -70,20 +84,24 @@ python sf10_web_app.py
 ### Command Line
 
 ```bash
-python generate_sf10.py
+python generate_sf10.py your_grading_sheet.xlsx
 ```
 
-This will process the sample files and generate `SF10_All_Students_Q1.xlsx` in the `output/` directory.
+Example:
+```bash
+python generate_sf10.py "1st Quarter Grades.xlsx"
+```
+
+This will process your grading sheet and generate `SF10_All_Students_Q1.xlsx` in the `output/` directory.
 
 ## Project Structure
 
 ```
 SF10-Grade-Automation/
 ├── assets/
-│   ├── docs/               # Sample files and templates
-│   │   ├── SF10.xlsx       # SF10 template
-│   │   ├── Sample_Grading_Sheet.xlsx
-│   │   └── USER_GUIDE.md
+│   ├── docs/               # Documentation and templates
+│   │   ├── SF10.xlsx       # SF10 template (required)
+│   │   └── USER_GUIDE.md   # User guide
 │   └── img/                # Logo images
 │       ├── 95c51f57-dfdc-418a-bf4c-54acb45308be-removebg-preview.png  # DepED logo
 │       └── c128a1b0-b3b3-492b-84f3-6624923eb8b4-removebg-preview.png  # Kagawaran seal

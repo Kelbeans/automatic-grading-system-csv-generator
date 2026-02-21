@@ -349,11 +349,30 @@ class SF10Generator:
 
 
 def main():
-    """Main function to run the SF10 generation"""
+    """
+    Main function to run the SF10 generation
 
-    # Define file paths
-    grading_sheet = 'assets/docs/1st QTR GRADE 1 DAISY GRADING SHEET.xlsx'
+    Usage:
+        python generate_sf10.py your_grading_sheet.xlsx
+
+    Or modify this function to point to your grading sheet file.
+    """
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Usage: python generate_sf10.py <grading_sheet.xlsx>")
+        print("\nExample:")
+        print("  python generate_sf10.py '1st Quarter Grades.xlsx'")
+        print("\nOr use the web interface:")
+        print("  python sf10_web_app.py")
+        sys.exit(1)
+
+    grading_sheet = sys.argv[1]
     sf10_template = 'assets/docs/SF10.xlsx'
+
+    if not os.path.exists(grading_sheet):
+        print(f"Error: File not found: {grading_sheet}")
+        sys.exit(1)
 
     # Create generator instance
     generator = SF10Generator(
