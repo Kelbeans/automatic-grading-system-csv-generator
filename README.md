@@ -13,6 +13,7 @@ This system provides both a web interface and command-line tool to automatically
 ### Web Interface
 - **Drag & Drop Upload**: User-friendly interface for non-technical users
 - **Multi-Quarter Support**: Process multiple quarters at once (1st, 2nd, 3rd, 4th)
+- **Learners Profile Integration**: Optional upload to auto-fill LRN, Birthday, and Sex fields
 - **Smart File Detection**: Automatically identifies SF10 files by structure, not filename
 - **Backwards Compatible**: Can add quarters to existing SF10 files
 - **Professional UI**: Modern design with Poppins font and clean layout
@@ -20,6 +21,7 @@ This system provides both a web interface and command-line tool to automatically
 ### Core Automation
 - **Single Workbook Output**: Generates one Excel file with all students as separate tabs
 - **Complete Name Mapping**: Fills Last Name, First Name, and Middle Name in correct fields
+- **Learner Profile Auto-Fill**: Optionally auto-fills LRN, Birthday, and Sex from learners profile file
 - **Quarter Isolation**: Only fills specified quarters, preserves existing data
 - **Logo Embedding**: Automatically adds DepED and Kagawaran ng Edukasyon logos with transparent backgrounds
 - **Template Preservation**: Maintains all merged cells and formatting from original SF10 template
@@ -93,6 +95,7 @@ python sf10_web_app.py
 
 3. Upload your files:
    - **Grading Sheets**: Drag and drop quarterly grading sheets (filename should include "1st", "2nd", "3rd", or "4th")
+   - **Learners Profile** (Optional): Upload to auto-fill LRN, Birthday, and Sex fields
    - **Existing SF10** (Optional): Upload an existing SF10 to add more quarters
 
 4. Click "Generate SF10 Records" and download your completed file
@@ -173,15 +176,19 @@ For each student, the system:
    - Column E (5): Last Name
    - Column Q (17): First Name
    - Column AP (42): Middle Name
-3. Populates grades in the correct quarter column:
+3. Fills learner profile data in row 10 (if profile uploaded):
+   - Column J (10): LRN (Learner Reference Number)
+   - Column U (21): Birthday
+   - Column AS (45): Sex
+4. Populates grades in the correct quarter column:
    - **1st Quarter**: Column K (10)
    - **2nd Quarter**: Column L (11)
    - **3rd Quarter**: Column M (12)
    - **4th Quarter**: Column N (13)
-4. Embeds DepED and Kagawaran ng Edukasyon logos with exact positioning:
+5. Embeds DepED and Kagawaran ng Edukasyon logos with exact positioning:
    - **Kagawaran Seal**: 87pt × 90pt at X=43pt, Y=0pt
    - **DepED Logo**: 137pt × 137pt at X=821pt, Y=-24pt
-5. Preserves all 497 merged cells from the template
+6. Preserves all 497 merged cells from the template
 
 ### 4. Multi-Quarter Processing
 When adding to an existing SF10:
@@ -198,7 +205,12 @@ Main class for SF10 generation.
 
 #### Constructor
 ```python
-SF10Generator(grading_sheet_path, sf10_template_path, output_dir='output')
+SF10Generator(
+    grading_sheet_path,
+    sf10_template_path,
+    output_dir='output',
+    learners_profile_path=None  # Optional: path to learners profile file
+)
 ```
 
 #### Key Methods
@@ -361,6 +373,8 @@ GitHub: [Kelbeans](https://github.com/Kelbeans)
 ## Changelog
 
 ### v2.1 (Current - February 2026)
+- 👤 **Learners Profile Feature** - Optional upload to auto-fill LRN, Birthday, and Sex fields
+- 🔍 **Smart Name Matching** - Handles comma spacing variations in student names
 - 🚀 **AWS Production Deployment** - Live at http://54.206.157.216
 - 🏗️ **Terraform Infrastructure** - One-command AWS deployment
 - 🪟 **Windows Support** - Double-click startup scripts (.bat and .ps1)
