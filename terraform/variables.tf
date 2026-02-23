@@ -13,7 +13,7 @@ variable "aws_profile" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t2.micro" # Free tier eligible
+  default     = "t3.micro" # Free tier eligible (750 hrs/month for 12 months)
 }
 
 variable "ami_id" {
