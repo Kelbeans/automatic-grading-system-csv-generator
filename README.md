@@ -66,7 +66,23 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### Web Interface (Recommended)
+### Production Deployment (Live)
+
+🌐 **Access the live application**: http://54.206.157.216
+
+No installation needed - just visit the URL and start uploading grading sheets!
+
+### Windows Users (Local)
+
+**Easiest method** - Just double-click:
+- `START_WEB_APP.bat` (recommended)
+- Or `START_WEB_APP.ps1` (PowerShell)
+
+The browser will open automatically to `http://localhost:8080`
+
+📖 **Windows guide**: See [WINDOWS_SETUP.md](WINDOWS_SETUP.md)
+
+### Web Interface (Mac/Linux)
 
 1. Start the web server:
 ```bash
@@ -127,6 +143,9 @@ SF10-Grade-Automation/
 │   └── test_server.py
 ├── generate_sf10.py        # Core automation engine
 ├── sf10_web_app.py         # Flask web application
+├── START_WEB_APP.bat       # Windows startup (batch)
+├── START_WEB_APP.ps1       # Windows startup (PowerShell)
+├── WINDOWS_SETUP.md        # Windows user guide
 ├── requirements.txt
 └── README.md
 ```
@@ -274,9 +293,27 @@ SF10 files are identified by:
 
 ## Deployment
 
-### AWS Deployment with Terraform + CI/CD (Recommended)
+### Production (AWS)
 
-**One-command deployment** to AWS with automatic updates on git push!
+🌐 **Live Application**: http://54.206.157.216
+
+**Current Deployment**:
+- **Region**: ap-southeast-2 (Sydney, Australia)
+- **Instance**: i-040b8fd5ef5e3bb3d (t3.micro)
+- **IP**: 54.206.157.216
+- **Stack**: Nginx + Gunicorn + Flask on Ubuntu 22.04
+- **Status**: ✅ Running
+
+**Update Deployment**:
+```bash
+ssh -i ~/.ssh/id_rsa ubuntu@54.206.157.216
+cd /home/sf10app
+./deploy.sh
+```
+
+### Deploy Your Own Instance (Terraform)
+
+**One-command deployment** to AWS with automatic infrastructure provisioning!
 
 ```bash
 cd terraform
@@ -286,8 +323,8 @@ terraform apply
 
 Features:
 - ✅ **Auto-provisions** EC2, Security Groups, Elastic IP
-- ✅ **CI/CD enabled** - deploys automatically on git push
-- ✅ **Free tier eligible** - t2.micro instance (12 months free)
+- ✅ **CI/CD ready** - automatic deployments on git push
+- ✅ **Free tier eligible** - t3.micro instance (12 months free)
 - ✅ **Production-ready** - Nginx + Gunicorn + systemd
 - ✅ **Always on** - no spin-down delays
 - ✅ **1GB RAM** - handles 40+ students easily
@@ -298,6 +335,10 @@ Features:
 
 ### Local Development
 
+#### Windows
+Double-click `START_WEB_APP.bat` or see [WINDOWS_SETUP.md](WINDOWS_SETUP.md)
+
+#### Mac/Linux
 ```bash
 python sf10_web_app.py
 # Open http://localhost:8080
@@ -319,7 +360,15 @@ GitHub: [Kelbeans](https://github.com/Kelbeans)
 
 ## Changelog
 
-### v2.0 (Current)
+### v2.1 (Current - February 2026)
+- 🚀 **AWS Production Deployment** - Live at http://54.206.157.216
+- 🏗️ **Terraform Infrastructure** - One-command AWS deployment
+- 🪟 **Windows Support** - Double-click startup scripts (.bat and .ps1)
+- 📖 **Windows Setup Guide** - Non-technical user documentation
+- 🌏 **Sydney Region** - Deployed to ap-southeast-2 for optimal performance
+- ⚙️ **Production Stack** - Nginx + Gunicorn + systemd with auto-restart
+
+### v2.0
 - Web interface with drag-and-drop
 - Multi-quarter support
 - Smart SF10 file detection
