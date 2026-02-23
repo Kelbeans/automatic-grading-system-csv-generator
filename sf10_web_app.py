@@ -110,13 +110,14 @@ def is_sf10_file(filepath):
         return False
 
 
-def merge_quarters_into_sf10(grading_files, existing_sf10_path=None, output_path=None):
+def merge_quarters_into_sf10(grading_files, existing_sf10_path=None, learners_profile_path=None, output_path=None):
     """
     Merge grades from multiple quarters into SF10
 
     Args:
         grading_files: List of tuples (filepath, quarter_number)
         existing_sf10_path: Path to existing SF10 to update (optional)
+        learners_profile_path: Path to learners profile file with LRN, Birthday, Sex (optional)
         output_path: Where to save the result
 
     Returns:
@@ -139,7 +140,8 @@ def merge_quarters_into_sf10(grading_files, existing_sf10_path=None, output_path
         generator = SF10Generator(
             grading_sheet_path=first_file,
             sf10_template_path=TEMPLATE_PATH,
-            output_dir=app.config['UPLOAD_FOLDER']
+            output_dir=app.config['UPLOAD_FOLDER'],
+            learners_profile_path=learners_profile_path
         )
         temp_output = generator.generate_single_workbook_all_students(
             quarter=first_quarter,
@@ -158,7 +160,8 @@ def merge_quarters_into_sf10(grading_files, existing_sf10_path=None, output_path
         generator = SF10Generator(
             grading_sheet_path=grading_file,
             sf10_template_path=TEMPLATE_PATH,
-            output_dir=app.config['UPLOAD_FOLDER']
+            output_dir=app.config['UPLOAD_FOLDER'],
+            learners_profile_path=learners_profile_path
         )
         students = generator.read_student_grades()
 
@@ -213,33 +216,51 @@ def upload_files():
         # Get uploaded files
         grading_files = []
         existing_sf10 = None
+        learners_profile = None
 
-        # Check for grading sheets
-        for key in request.files:
-            file = request.files[key]
+        # Check for learners profile first (explicit key)
+        if 'learners_profile' in request.files:
+            file = request.files['learners_profile']
             if file and file.filename:
                 filename = secure_filename(file.filename)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(filepath)
+                learners_profile = filepath
+                print(f"✓✓✓ LEARNERS PROFILE UPLOADED: {filename} at {filepath}")
+            else:
+                print(f"✗✗✗ Learners profile key exists but no file/filename")
+        else:
+            print(f"✗✗✗ No 'learners_profile' key in request.files")
+            print(f"Available keys: {list(request.files.keys())}")
 
-                # Check if this is an existing SF10 or a grading sheet
-                # First check by file structure (more reliable)
-                if is_sf10_file(filepath):
-                    existing_sf10 = filepath
-                    print(f"Detected existing SF10 (by structure): {filename}")
-                else:
-                    # Not an SF10, so it must be a grading sheet
+        # Check for existing SF10 (explicit key)
+        if 'existing_sf10' in request.files:
+            file = request.files['existing_sf10']
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                existing_sf10 = filepath
+                print(f"Existing SF10 uploaded: {filename}")
+
+        # Check for grading sheets (keys starting with 'grading_')
+        for key in request.files:
+            if key.startswith('grading_'):
+                file = request.files[key]
+                if file and file.filename:
+                    filename = secure_filename(file.filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(filepath)
+
                     # Try to identify quarter from filename
                     quarter = identify_quarter_from_filename(filename)
                     if quarter:
                         grading_files.append((filepath, quarter))
                         print(f"Detected grading sheet: {filename} -> Quarter {quarter}")
                     else:
-                        # Check if this might be an SF10 with unusual naming
                         return jsonify({
-                            'error': f'Could not identify file type: {filename}. '
-                                   f'Grading sheets should include "1st", "2nd", "3rd", or "4th" in the filename. '
-                                   f'SF10 files should have multiple student sheets with grades.'
+                            'error': f'Could not identify quarter from filename: {filename}. '
+                                   f'Grading sheets should include "1st", "2nd", "3rd", or "4th" in the filename.'
                         }), 400
 
         if not grading_files:
@@ -249,7 +270,13 @@ def upload_files():
         grading_files.sort(key=lambda x: x[1])
 
         # Generate/update SF10
-        output_path = merge_quarters_into_sf10(grading_files, existing_sf10)
+        print(f"\n{'='*60}")
+        print(f"Calling merge_quarters_into_sf10 with:")
+        print(f"  grading_files: {len(grading_files)} file(s)")
+        print(f"  existing_sf10: {existing_sf10}")
+        print(f"  learners_profile: {learners_profile}")
+        print(f"{'='*60}\n")
+        output_path = merge_quarters_into_sf10(grading_files, existing_sf10, learners_profile)
 
         # Prepare response
         quarters_processed = [q for _, q in grading_files]

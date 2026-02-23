@@ -3,11 +3,16 @@
 
 const gradingFiles = [];
 let existingSF10 = null;
+let learnersProfile = null;
 
 // DOM Elements
 const gradingDropZone = document.getElementById('gradingDropZone');
 const gradingFileInput = document.getElementById('gradingFileInput');
 const gradingFileList = document.getElementById('gradingFileList');
+
+const profileDropZone = document.getElementById('profileDropZone');
+const profileFileInput = document.getElementById('profileFileInput');
+const profileFileList = document.getElementById('profileFileList');
 
 const sf10DropZone = document.getElementById('sf10DropZone');
 const sf10FileInput = document.getElementById('sf10FileInput');
@@ -26,6 +31,13 @@ function init() {
     gradingDropZone.addEventListener('dragleave', handleDragLeave);
     gradingDropZone.addEventListener('drop', handleGradingDrop);
     gradingFileInput.addEventListener('change', (e) => handleGradingFiles(e.target.files));
+
+    // Profile events
+    profileDropZone.addEventListener('click', () => profileFileInput.click());
+    profileDropZone.addEventListener('dragover', handleDragOver);
+    profileDropZone.addEventListener('dragleave', handleDragLeave);
+    profileDropZone.addEventListener('drop', handleProfileDrop);
+    profileFileInput.addEventListener('change', (e) => handleProfileFile(e.target.files[0]));
 
     // SF10 events
     sf10DropZone.addEventListener('click', () => sf10FileInput.click());
@@ -52,6 +64,12 @@ function handleGradingDrop(e) {
     e.preventDefault();
     this.classList.remove('dragover');
     handleGradingFiles(e.dataTransfer.files);
+}
+
+function handleProfileDrop(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+    handleProfileFile(e.dataTransfer.files[0]);
 }
 
 function handleSF10Drop(e) {
@@ -83,6 +101,13 @@ function handleGradingFiles(files) {
     updateGenerateButton();
 }
 
+function handleProfileFile(file) {
+    if (file) {
+        learnersProfile = file;
+        updateProfileFileList();
+    }
+}
+
 function handleSF10File(file) {
     if (file) {
         existingSF10 = file;
@@ -102,6 +127,23 @@ function updateGradingFileList() {
             <button class="file-item-remove" onclick="removeGradingFile(${index})">Remove</button>
         </div>
     `).join('');
+}
+
+function updateProfileFileList() {
+    if (learnersProfile) {
+        profileFileList.innerHTML = `
+            <div class="file-item">
+                <div class="file-item-info">
+                    <div class="file-item-icon">👤</div>
+                    <div class="file-item-name">${learnersProfile.name}</div>
+                    <span class="file-item-tag">LRN, Birthday, Sex</span>
+                </div>
+                <button class="file-item-remove" onclick="removeProfileFile()">Remove</button>
+            </div>
+        `;
+    } else {
+        profileFileList.innerHTML = '';
+    }
 }
 
 function updateSF10FileList() {
@@ -131,6 +173,11 @@ function removeGradingFile(index) {
     updateGenerateButton();
 }
 
+function removeProfileFile() {
+    learnersProfile = null;
+    updateProfileFileList();
+}
+
 function removeSF10File() {
     existingSF10 = null;
     updateSF10FileList();
@@ -144,6 +191,11 @@ async function generateSF10() {
     gradingFiles.forEach((item, index) => {
         formData.append(`grading_${index}`, item.file);
     });
+
+    // Add learners profile if provided
+    if (learnersProfile) {
+        formData.append('learners_profile', learnersProfile);
+    }
 
     // Add existing SF10 if provided
     if (existingSF10) {
@@ -178,8 +230,10 @@ async function generateSF10() {
 
             // Clear files
             gradingFiles.length = 0;
+            learnersProfile = null;
             existingSF10 = null;
             updateGradingFileList();
+            updateProfileFileList();
             updateSF10FileList();
             updateGenerateButton();
         } else {

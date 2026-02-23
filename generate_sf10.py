@@ -13,7 +13,7 @@ from pathlib import Path
 class SF10Generator:
     """Handles the generation of SF10 files for students"""
 
-    def __init__(self, grading_sheet_path, sf10_template_path, output_dir='output'):
+    def __init__(self, grading_sheet_path, sf10_template_path, output_dir='output', learners_profile_path=None):
         """
         Initialize the SF10 Generator
 
@@ -21,10 +21,15 @@ class SF10Generator:
             grading_sheet_path: Path to the grading sheet Excel file
             sf10_template_path: Path to the SF10 template Excel file
             output_dir: Directory where generated SF10 files will be saved
+            learners_profile_path: Optional path to learners profile file with LRN, Birthday, Sex
         """
         self.grading_sheet_path = grading_sheet_path
         self.sf10_template_path = sf10_template_path
         self.output_dir = output_dir
+        self.learners_profile_path = learners_profile_path
+
+        # Only load learners profile if explicitly provided
+        self.learners_profile_data = self._load_learners_profile() if learners_profile_path else {}
 
         # Create output directory if it doesn't exist
         Path(self.output_dir).mkdir(exist_ok=True)
@@ -54,6 +59,60 @@ class SF10Generator:
             3: 12,  # 3rd quarter in column M (index 12)
             4: 13   # 4th quarter in column N (index 13)
         }
+
+    def _normalize_name(self, name):
+        """
+        Normalize student name for matching
+        - Convert to uppercase
+        - Remove extra spaces
+        - Normalize comma spacing (remove spaces around commas, then add one space after each)
+        """
+        # Remove extra whitespace
+        name = ' '.join(name.split())
+        # Remove spaces around commas
+        name = name.replace(' ,', ',').replace(', ', ',')
+        # Add consistent space after each comma
+        name = name.replace(',', ', ')
+        return name.strip().upper()
+
+    def _load_learners_profile(self):
+        """
+        Load learner profile data (LRN, Birthday, Sex) from LEARNERS PROFILE.xlsx
+
+        Returns:
+            Dictionary mapping student names to their profile data
+        """
+        if not os.path.exists(self.learners_profile_path):
+            print(f"Warning: Learners profile not found at {self.learners_profile_path}")
+            return {}
+
+        try:
+            # Read the profile file (header at row 3, data starts at row 4)
+            df = pd.read_excel(self.learners_profile_path, header=None, skiprows=4)
+
+            # Extract relevant columns: 1=LRN, 4=NAME, 8=BIRTHDAY, 10=SEX
+            df_clean = df[[1, 4, 8, 10]]
+            df_clean.columns = ['LRN', 'NAME', 'BIRTHDAY', 'SEX']
+
+            # Remove any NaN rows
+            df_clean = df_clean.dropna(subset=['NAME'])
+
+            # Create dictionary mapping name to profile data
+            profile_dict = {}
+            for _, row in df_clean.iterrows():
+                name = self._normalize_name(str(row['NAME']))
+                profile_dict[name] = {
+                    'LRN': row['LRN'],
+                    'BIRTHDAY': row['BIRTHDAY'],
+                    'SEX': str(row['SEX']).strip().upper()
+                }
+
+            print(f"✓ Loaded {len(profile_dict)} learner profiles")
+            return profile_dict
+
+        except Exception as e:
+            print(f"Warning: Could not load learners profile: {e}")
+            return {}
 
     def read_student_grades(self):
         """
@@ -142,6 +201,20 @@ class SF10Generator:
 
         # Row 9, Column AP (42): Middle Name
         ws.cell(row=9, column=42, value=middle_name)
+
+        # Fill in LRN, Birthday, Sex from learners profile if available
+        student_name_upper = self._normalize_name(student_name)
+        if student_name_upper in self.learners_profile_data:
+            profile = self.learners_profile_data[student_name_upper]
+
+            # Row 10, Column J (10): LRN
+            ws.cell(row=10, column=10, value=profile['LRN'])
+
+            # Row 10, Column U (21): Birthday
+            ws.cell(row=10, column=21, value=profile['BIRTHDAY'])
+
+            # Row 10, Column AS (45): Sex
+            ws.cell(row=10, column=45, value=profile['SEX'])
 
         # Fill in the grades for each subject in the appropriate quarter column
         quarter_col = self.sf10_quarter_columns[quarter]
@@ -314,6 +387,24 @@ class SF10Generator:
                 new_ws.cell(row=9, column=5, value=last_name)
                 new_ws.cell(row=9, column=17, value=first_name)
                 new_ws.cell(row=9, column=42, value=middle_name)
+
+                # Fill in LRN, Birthday, Sex from learners profile if available
+                student_name_upper = self._normalize_name(student_name)
+                print(f"   DEBUG: Looking for '{student_name_upper}' in profile data (has {len(self.learners_profile_data)} entries)")
+                if student_name_upper in self.learners_profile_data:
+                    profile = self.learners_profile_data[student_name_upper]
+                    print(f"   ✓ Found profile: LRN={profile['LRN']}, Birthday={profile['BIRTHDAY']}, Sex={profile['SEX']}")
+
+                    # Row 10, Column J (10): LRN
+                    new_ws.cell(row=10, column=10, value=profile['LRN'])
+
+                    # Row 10, Column U (21): Birthday
+                    new_ws.cell(row=10, column=21, value=profile['BIRTHDAY'])
+
+                    # Row 10, Column AS (45): Sex
+                    new_ws.cell(row=10, column=45, value=profile['SEX'])
+                else:
+                    print(f"   ✗ NOT FOUND in profile data")
 
                 # Fill in the grades for the specified quarter
                 quarter_col = self.sf10_quarter_columns[quarter]

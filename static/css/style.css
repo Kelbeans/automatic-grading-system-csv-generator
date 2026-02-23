@@ -177,6 +177,21 @@ body {
     }
 }
 
+.help-text {
+    font-size: 12px;
+    color: #718096;
+    margin-bottom: 12px;
+    padding: 0 4px;
+    font-weight: 500;
+}
+
+@media (min-width: 768px) {
+    .help-text {
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
+}
+
 .drop-zone {
     border: 2px dashed #cbd5e0;
     border-radius: 12px;
@@ -293,6 +308,15 @@ body {
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 12px;
+    font-weight: 600;
+}
+
+.file-item-tag {
+    background: #10b981;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
     font-weight: 600;
 }
 
