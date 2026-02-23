@@ -11,16 +11,37 @@ from generate_sf10 import SF10Generator
 from openpyxl import load_workbook
 import pandas as pd
 from datetime import datetime
-import tempfile
 import shutil
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-app.config['UPLOAD_FOLDER'] = tempfile.mkdtemp()
+
+# Create persistent upload folder
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
 
 # Template path
 TEMPLATE_PATH = 'assets/docs/SF10.xlsx'
+
+
+def cleanup_old_files(folder, hours=24):
+    """Remove files older than specified hours"""
+    try:
+        import time
+        now = time.time()
+        cutoff = now - (hours * 3600)
+
+        for filename in os.listdir(folder):
+            filepath = os.path.join(folder, filename)
+            if os.path.isfile(filepath):
+                if os.path.getmtime(filepath) < cutoff:
+                    os.remove(filepath)
+                    print(f"Cleaned up old file: {filename}")
+    except Exception as e:
+        print(f"Error during cleanup: {e}")
 
 
 def identify_quarter_from_filename(filename):
@@ -258,6 +279,9 @@ def download_file(filename):
 
 
 if __name__ == '__main__':
+    # Cleanup old files on startup
+    cleanup_old_files(app.config['UPLOAD_FOLDER'], hours=24)
+
     print("\n" + "="*70)
     print("SF10 Grade Automation Web Interface")
     print("="*70)
