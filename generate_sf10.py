@@ -306,7 +306,8 @@ class SF10Generator:
                         deped_logo.anchor = OneCellAnchor(_from=marker, ext=size)
                         new_ws.add_image(deped_logo)
                 except Exception as e:
-                    pass  # Continue without logos if there's an issue
+                    print(f'   Warning: Could not add logos to {sheet_name}: {str(e)}')
+                    # Continue without logos if there's an issue
 
                 # Now fill in the student data
                 # Update the name fields
