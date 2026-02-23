@@ -207,8 +207,10 @@ class SF10Generator:
         if student_name_upper in self.learners_profile_data:
             profile = self.learners_profile_data[student_name_upper]
 
-            # Row 10, Column J (10): LRN
-            ws.cell(row=10, column=10, value=profile['LRN'])
+            # Row 10, Column J (10): LRN - format as text to prevent scientific notation
+            lrn_cell = ws.cell(row=10, column=10)
+            lrn_cell.value = str(int(profile['LRN'])) if pd.notna(profile['LRN']) else ''
+            lrn_cell.number_format = '@'  # Text format
 
             # Row 10, Column U (21): Birthday
             ws.cell(row=10, column=21, value=profile['BIRTHDAY'])
@@ -395,8 +397,10 @@ class SF10Generator:
                     profile = self.learners_profile_data[student_name_upper]
                     print(f"   ✓ Found profile: LRN={profile['LRN']}, Birthday={profile['BIRTHDAY']}, Sex={profile['SEX']}")
 
-                    # Row 10, Column J (10): LRN
-                    new_ws.cell(row=10, column=10, value=profile['LRN'])
+                    # Row 10, Column J (10): LRN - format as text to prevent scientific notation
+                    lrn_cell = new_ws.cell(row=10, column=10)
+                    lrn_cell.value = str(int(profile['LRN'])) if pd.notna(profile['LRN']) else ''
+                    lrn_cell.number_format = '@'  # Text format
 
                     # Row 10, Column U (21): Birthday
                     new_ws.cell(row=10, column=21, value=profile['BIRTHDAY'])
